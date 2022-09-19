@@ -1,0 +1,44 @@
+---
+title: "final_exercise"
+output: html_document
+date: "2022-09-19"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data Imports
+
+schools <- read_csv(here("data/nys_schools.csv"))
+acs <- read_csv(here("data/nys_acs.csv"))
+summary(schools)
+summary(acs)
+
+## Data Cleaning
+
+
+
+# Drop -99
+new_school = 
+subset(schools, schools$region != -99 & schools$total_enroll != -99 & schools$per_free_lunch != -99 & schools$per_reduced_lunch != -99 & schools$per_lep != -99 & schools$mean_ela_score != -99 & schools$mean_math_score != -99)
+
+View(new_school)
+
+# Drop district_name
+new_school[,-c("newvar")]
+
+
+# Distribution of county_per_poverty
+hist(acs$county_per_poverty)
+
+## Merge Datasets
+merge_table = merge(x = schools, y = acs, by = c("county_name","year"))
+
+## Data Visualization
+merge_table %>%
+  group_by(school_name) %>% 
+  summarise(output=mean(mean_math_score)) %>% 
+  ggplot() + 
+  geom_point(aes(x=per_free_lunch, y=output, group=school_name, col=school_name)) + 
+  labs(title="The relationship between access to free/reduced price lunch and test performance, at the school level.", x="per_free_lunch", y="mean_math_score")
